@@ -201,10 +201,10 @@
       <div class="form-group">
         <label for="duration">Duração da vela:</label>
         <select id="duration">
-  	<option value="3">3 dias</option>
- 	<option value="7">7 dias</option>
-  	<option value="30">30 dias</option>
-      </select>
+          <option value="3">3 dias</option>
+          <option value="7">7 dias</option>
+          <option value="30">30 dias</option>
+        </select>
       </div>
 
       <button type="submit" id="submitBtn">Acender Vela</button>
@@ -214,10 +214,7 @@
   <div class="candles-grid" id="candlesContainer"></div>
 
   <script>
-    // 1. URL corrigida sem o sufixo /rest/v1/
     const SUPABASE_URL = 'https://apcwehmsoafwmjhqnqgt.supabase.co';
-    
-    // 2. Insira aqui a sua chave 'anon public' do Supabase (Project Settings > API)
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwY3dlaG1zb2Fmd21qaHFucWd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3NDEyNjksImV4cCI6MjEwNTMxNzI2OX0.H-iNWXTqwiNWjqJrCwKHr3VOhyVQ2QvdaDqS--gVERQ';
 
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -235,7 +232,7 @@
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Erro ao buscar velas:', error);
+        console.error('Erro ao carregar:', error);
         return;
       }
 
@@ -277,7 +274,7 @@
       submitBtn.disabled = true;
       submitBtn.innerText = 'Acendendo...';
 
-      const { error } = await _supabase
+      const { data, error } = await _supabase
         .from('candles')
         .insert([
           {
@@ -291,8 +288,8 @@
       submitBtn.innerText = 'Acender Vela';
 
       if (error) {
-        alert('Erro ao acender a vela. Verifique a chave do Supabase e o console do navegador.');
-        console.error('Erro Supabase:', error);
+        alert('Erro do Supabase: ' + error.message + '\nDetalhes: ' + (error.details || 'Sem detalhes'));
+        console.error('Erro completo:', error);
       } else {
         messageInput.value = '';
         loadCandles();

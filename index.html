@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Santuário Virtual - Acenda sua Vela</title>
+  
+  <!-- Ícone da Página (Emoji de Vela) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕯️</text></svg>">
+  
   <!-- SDK do Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -184,6 +188,92 @@
       margin-top: 8px;
       font-weight: bold;
     }
+
+    /* Estilos do Rodapé e Modal (Pop-up) */
+    footer {
+      margin-top: auto;
+      padding-top: 40px;
+      padding-bottom: 10px;
+      text-align: center;
+    }
+
+    .terms-link {
+      color: #8a8a9e;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    .terms-link:hover {
+      color: #f3e5ab;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid #33334d;
+      border-radius: 12px;
+      max-width: 600px;
+      width: 100%;
+      padding: 25px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.8);
+      position: relative;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-content h2 {
+      color: #f3e5ab;
+      margin-top: 0;
+      font-size: 1.2rem;
+      font-weight: 400;
+      border-bottom: 1px solid #2a2a3d;
+      padding-bottom: 10px;
+    }
+
+    .modal-content p, .modal-content ul {
+      font-size: 0.9rem;
+      color: #c8c8d8;
+      line-height: 1.5;
+    }
+
+    .modal-content ul {
+      padding-left: 20px;
+    }
+
+    .modal-content li {
+      margin-bottom: 8px;
+    }
+
+    .close-btn {
+      margin-top: 20px;
+      background: #33334d;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      float: right;
+    }
+
+    .close-btn:hover {
+      background: #444466;
+    }
   </style>
 </head>
 <body>
@@ -213,6 +303,25 @@
 
   <div class="candles-grid" id="candlesContainer"></div>
 
+  <footer>
+    <span class="terms-link" id="openTerms">Termos de uso e isenção de responsabilidade</span>
+  </footer>
+
+  <!-- Modal Pop-up -->
+  <div class="modal-overlay" id="termsModal">
+    <div class="modal-content">
+      <h2>Termos de Uso e Isenção de Responsabilidade</h2>
+      <p>Este site é um espaço virtual destinado exclusivamente à livre manifestação de fé, oração, reflexão e boas intenções.</p>
+      <ul>
+        <li><strong>Responsabilidade pelo Conteúdo:</strong> Todas as mensagens, pedidos, intenções e nomes vinculados ao acendimento de velas são de responsabilidade única e exclusiva dos usuários que os publicam.</li>
+        <li><strong>Isenção do Santuário:</strong> O site e seus idealizadores não exercem controle prévio sobre o teor das mensagens publicadas e não se responsabilizam, sob nenhuma hipótese, pelas intenções, opiniões, desejos ou condutas de terceiros.</li>
+        <li><strong>Uso Adequado:</strong> É expressamente vedada a utilização deste espaço para a publicação de conteúdos que promovam o ódio, o mal, a discriminação, a violência, a calúnia ou qualquer violação aos direitos de outrem.</li>
+        <li><strong>Moderação:</strong> Reservamo-nos o direito de remover, a qualquer momento e sem aviso prévio, qualquer mensagem que descumpra esses princípios ou que seja considerada inadequada para o ambiente do santuário.</li>
+      </ul>
+      <button class="close-btn" id="closeTerms">Fechar</button>
+    </div>
+  </div>
+
   <script>
     const SUPABASE_URL = 'https://apcwehmsoafwmjhqnqgt.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwY3dlaG1zb2Fmd21qaHFucWd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3NDEyNjksImV4cCI6MjEwNTMxNzI2OX0.H-iNWXTqwiNWjqJrCwKHr3VOhyVQ2QvdaDqS--gVERQ';
@@ -221,6 +330,25 @@
 
     const candlesContainer = document.getElementById('candlesContainer');
     const candleForm = document.getElementById('candleForm');
+
+    // Lógica do Modal Pop-up
+    const termsModal = document.getElementById('termsModal');
+    const openTermsBtn = document.getElementById('openTerms');
+    const closeTermsBtn = document.getElementById('closeTerms');
+
+    openTermsBtn.addEventListener('click', () => {
+      termsModal.style.display = 'flex';
+    });
+
+    closeTermsBtn.addEventListener('click', () => {
+      termsModal.style.display = 'none';
+    });
+
+    termsModal.addEventListener('click', (e) => {
+      if (e.target === termsModal) {
+        termsModal.style.display = 'none';
+      }
+    });
 
     async function loadCandles() {
       const now = new Date().toISOString();

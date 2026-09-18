@@ -214,16 +214,17 @@
   <div class="candles-grid" id="candlesContainer"></div>
 
   <script>
-    // Substitua com as chaves do seu projeto Supabase:
-    const SUPABASE_URL = 'https://apcwehmsoafwmjhqnqgt.supabase.co/rest/v1/';
-    const SUPABASE_KEY = 'sb_publishable_Y2jYKyMbukdAoHlXYvMjFg_h_yjYGNg';
+    // 1. URL corrigida sem o sufixo /rest/v1/
+    const SUPABASE_URL = 'https://apcwehmsoafwmjhqnqgt.supabase.co';
+    
+    // 2. Insira aqui a sua chave 'anon public' do Supabase (Project Settings > API)
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwY3dlaG1zb2Fmd21qaHFucWd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3NDEyNjksImV4cCI6MjEwNTMxNzI2OX0.H-iNWXTqwiNWjqJrCwKHr3VOhyVQ2QvdaDqS--gVERQ';
 
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const candlesContainer = document.getElementById('candlesContainer');
     const candleForm = document.getElementById('candleForm');
 
-    // Carrega apenas velas cuja data de expiração seja maior que a data e hora atual
     async function loadCandles() {
       const now = new Date().toISOString();
 
@@ -238,7 +239,7 @@
         return;
       }
 
-      renderCandles(data);
+      renderCandles(data || []);
     }
 
     function renderCandles(candles) {
@@ -270,14 +271,12 @@
       const durationDays = parseInt(durationSelect.value, 10);
       const message = messageInput.value.trim();
 
-      // Calcula a data exata em que a vela deve expirar
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + durationDays);
 
       submitBtn.disabled = true;
       submitBtn.innerText = 'Acendendo...';
 
-      // Salva no banco de dados na nuvem
       const { error } = await _supabase
         .from('candles')
         .insert([
@@ -292,15 +291,14 @@
       submitBtn.innerText = 'Acender Vela';
 
       if (error) {
-        alert('Erro ao acender a vela. Tente novamente.');
-        console.error(error);
+        alert('Erro ao acender a vela. Verifique a chave do Supabase e o console do navegador.');
+        console.error('Erro Supabase:', error);
       } else {
         messageInput.value = '';
-        loadCandles(); // Atualiza a lista na tela
+        loadCandles();
       }
     });
 
-    // Carrega as velas ao abrir a página
     loadCandles();
   </script>
 

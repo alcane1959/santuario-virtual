@@ -386,6 +386,109 @@
       });
     }
 
+    // Moderacao local ampliada, sem alterar o layout ou o Supabase.
+    const blockedTerms = [
+      // Ofensas e palavroes
+      'idiota', 'imbecil', 'burro', 'burra', 'babaca', 'palhaco',
+      'palhaca', 'canalha', 'vagabundo', 'vagabunda', 'desgracado', 'desgracada',
+      'maldito', 'maldita', 'otario', 'otaria', 'cretino', 'cretina',
+      'escroto', 'escrota', 'lixo', 'porcaria', 'droga', 'merda',
+      'bosta', 'caralho', 'porra', 'cacete', 'fdp', 'corno',
+      'corna', 'arrombado', 'arrombada', 'pilantra', 'safado', 'safada',
+      'verme', 'inutil', 'fracassado', 'fracassada', 'retardado', 'retardada',
+      'estupido', 'estupida', 'ignorante', 'nojento', 'nojenta', 'ridiculo',
+      'ridicula', 'miseravel', 'covarde',
+      // Odio discriminacao e extremismo
+      'odio', 'odiar', 'racista', 'racismo', 'nazista', 'nazismo',
+      'neonazista', 'neonazismo', 'fascista', 'fascismo', 'supremacia', 'supremacista',
+      'segregacao', 'apartheid', 'discriminacao', 'preconceito', 'intolerancia', 'perseguicao',
+      'xenofobia', 'xenofobico', 'xenofobica', 'misoginia', 'misogino', 'misogina',
+      'capacitismo', 'capacitista', 'antissemita', 'antissemitismo', 'islamofobia', 'homofobia',
+      'transfobia', 'inferior', 'subhumano', 'desumanizar',
+      // Violencia ameacas e intimidacao
+      'matar', 'assassinar', 'assassinato', 'homicidio', 'ameaca', 'ameacar',
+      'vinganca', 'agredir', 'agressao', 'espancar', 'torturar', 'tortura',
+      'sequestrar', 'sequestro', 'envenenar', 'envenenamento', 'incendiar', 'explodir',
+      'explosivo', 'bomba', 'atentado', 'terrorismo', 'terrorista', 'tiroteio',
+      'fuzilar', 'esfaquear', 'degolar', 'estrangular', 'apedrejar', 'linchar',
+      'linchamento', 'destruir', 'machucar', 'ferir', 'massacre', 'chacina',
+      'execucao', 'praga', 'amaldicoar', 'maldicao',
+      // Autoagressao e incentivo ao dano
+      'me matar', 'quero morrer', 'vou morrer', 'tirar minha vida', 'acabar com minha vida', 'suicidio',
+      'suicidar', 'se mate', 'se matem', 'tire sua vida', 'nao vale a pena viver', 'melhor morrer',
+      'automutilacao', 'auto mutilacao', 'me machucar',
+      // Politica eleitoral e partidaria
+      'politica', 'politico', 'partido', 'partidario', 'partidaria', 'eleicao',
+      'eleicoes', 'eleitoral', 'candidato', 'candidata', 'candidatura', 'voto',
+      'votar', 'urna', 'presidente', 'governador', 'governadora', 'prefeito',
+      'prefeita', 'vereador', 'vereadora', 'senador', 'senadora', 'deputado',
+      'deputada', 'congresso', 'senado', 'direita', 'esquerda', 'comunista',
+      'comunismo', 'socialista', 'socialismo', 'capitalista', 'bolsonarista', 'lulista',
+      'petista', 'antipetista', 'militancia', 'militante', 'impeachment', 'ditadura',
+      'campanha eleitoral', 'propaganda eleitoral', 'urna eletronica', 'vice presidente', 'camara dos deputados', 'governo federal',
+      'governo estadual', 'governo municipal', 'extrema direita', 'extrema esquerda', 'manifestacao politica', 'protesto politico',
+      'golpe de estado', 'intervencao militar', 'psdb', 'mdb', 'psol', 'pdt',
+      'pcdob', 'republicanos', 'uniao brasil', 'rede sustentabilidade',
+      // Fraude crimes e pedidos maliciosos
+      'golpe', 'fraude', 'fraudar', 'enganar', 'roubar', 'furto',
+      'furtar', 'chantagem', 'chantagear', 'extorsao', 'extorquir', 'hackear',
+      'hacker', 'crackear', 'falsificar', 'falsificacao', 'phishing', 'ransomware',
+      'malware', 'espionar', 'espionagem', 'sabotagem', 'sabotar', 'botnet',
+      'subornar', 'suborno', 'corrupcao', 'contrabando', 'trafico', 'aplicar golpe',
+      'invadir conta', 'invadir sistema', 'invadir celular', 'burlar senha', 'quebrar senha', 'descobrir senha',
+      'senha roubada', 'dados roubados', 'vazar dados', 'roubar dados', 'clonar cartao', 'cartao clonado',
+      'documento falso', 'dinheiro falso', 'lavagem de dinheiro', 'conta laranja', 'derrubar site', 'ataque ddos',
+      'comprar arma', 'fabricar arma', 'fazer bomba', 'ocultar cadaver', 'sumir com provas', 'destruir provas',
+      'forjar prova', 'encomendar crime', 'contratar assassino',
+      // Assedio difamacao e exposicao
+      'assediar', 'assedio', 'stalking', 'difamar', 'difamacao', 'caluniar',
+      'calunia', 'injuriar', 'injuria', 'humilhar', 'humilhacao', 'intimidar',
+      'intimidacao', 'bullying', 'cyberbullying', 'doxxing', 'perseguir alguem', 'expor endereco',
+      'divulgar endereco', 'vazar telefone', 'vazar cpf', 'vazar documento', 'dados pessoais', 'expor familia',
+      'espalhar boato', 'inventar boato', 'acusar falsamente', 'perfil falso', 'identidade falsa',
+      // Spam e abuso
+      'spam', 'propaganda', 'publicidade', 'compre agora', 'clique aqui', 'ganhe dinheiro',
+      'dinheiro facil', 'renda garantida', 'lucro garantido', 'premio garantido', 'sorteio falso', 'piramide financeira',
+      'marketing multinivel', 'codigo promocional', 'cupom de desconto', 'corrente de mensagem', 'copie e cole', 'envie para todos',
+      'compartilhe com todos', 'curta e siga', 'siga meu perfil', 'me chama no privado', 'chama no whatsapp', 'pix para',
+      'chave pix', 'comprar seguidores', 'vender seguidores',
+      // Intencoes maliciosas
+      'ritual para prejudicar', 'ritual para vinganca', 'trabalho para separar', 'separar casal', 'destruir casamento', 'arruinar a vida',
+      'acabar com a familia', 'tirar a paz', 'causar doenca', 'desejar doenca', 'que fique doente', 'que sofra acidente',
+      'provocar acidente', 'atrair desgraca', 'mandar energia ruim', 'fazer perder o emprego', 'fazer perder tudo', 'prejudicar rival',
+      'prejudicar inimigo', 'vai pagar caro', 'vai se arrepender', 'tomara que morra', 'quero que morra', 'quero que sofra',
+      'nao merece viver', 'nao merecem viver', 'limpeza etnica', 'superioridade racial', 'raca inferior', 'povo inferior',
+    ];
+    const blockedPatterns = [
+      /\b(?:mate|matem|morra|morram|sofra|sofram)\b/i,
+      /\b(?:eu\s+)?(?:quero|vou|vamos|pretendo)\s+(?:matar|agredir|machucar|ferir|destruir|invadir|roubar|hackear)\b/i,
+      /\b(?:tomara|espero|desejo)\s+que\s+(?:morra|sofra|adoeca|perca|fracasse)\b/i,
+      /\b(?:como|jeito|maneira|passo a passo)\s+(?:de|para)\s+(?:matar|ferir|invadir|roubar|fraudar|enganar|hackear|sabotar)\b/i,
+      /\b(?:vote|votem|nao vote|nao votem)\s+(?:em|no|na)\b/i,
+      /\b(?:pix|whatsapp|telegram|telefone)\s*[:\-]?\s*[0-9]{4,}\b/i,
+      /\b(?:cpf|cnpj)\s*[:\-]?\s*[0-9.\/-]{8,}\b/i,
+      /https?:\/\/|www\.|(?:bit\.ly|tinyurl\.com|t\.me)\//i
+    ];
+    function normalizeForModeration(value) {
+      return value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[@4]/g, 'a').replace(/[3]/g, 'e').replace(/[1!|]/g, 'i')
+        .replace(/[0]/g, 'o').replace(/[$5]/g, 's').replace(/[7]/g, 't')
+        .replace(/(.)\1{2,}/g, '$1$1').replace(/[^a-z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ').trim();
+    }
+    function findBlockedContent(value) {
+      const normalized = normalizeForModeration(value);
+      if (!normalized) return null;
+      const padded = ` ${normalized} `;
+      const compact = normalized.replace(/\s+/g, '');
+      const term = blockedTerms.find(item => {
+        const n = normalizeForModeration(item), c = n.replace(/\s+/g, '');
+        return padded.includes(` ${n} `) || (c.length >= 5 && compact.includes(c));
+      });
+      if (term) return term;
+      return blockedPatterns.some(pattern => pattern.test(normalized)) ? 'conteudo incompativel' : null;
+    }
+
     candleForm.addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -395,6 +498,12 @@
 
       const durationDays = parseInt(durationSelect.value, 10);
       const message = messageInput.value.trim();
+
+      if (findBlockedContent(message)) {
+        alert('Esta mensagem está fora da política de uso do site e não pode ser publicada. Revise o conteúdo e tente novamente.');
+        messageInput.focus();
+        return;
+      }
 
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + durationDays);
